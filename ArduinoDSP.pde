@@ -1,7 +1,16 @@
 #include "dsp.h"
 #include "oscilloscope.h"
 int enableFx = 0;
+// Todo , write a way cooler circular buffer.
+#define CBLEN 768
+unsigned short *circleBuffer;
+unsigned int cbpos=0;
+
+#define SHIFT(v) ((float)(v-500.0))
+#define UNSHIFT(v) ((int)(v+500))
+
 void setup() {
+  circleBuffer = (unsigned short*)malloc(CBLEN);
   pinMode(3,OUTPUT);
   pinMode(11,OUTPUT);
   pinMode(5,OUTPUT);
@@ -13,22 +22,17 @@ void setup() {
   setupIO();
   //Serial.begin(9600);
 }
-// Todo , write a way cooler circular buffer.
-#define CBLEN 1560
-short circleBuffer[CBLEN];
-unsigned int cbpos=0;
 
-#define SHIFT(v) ((float)(v-500.0))
-#define UNSHIFT(v) ((int)(v+500.0))
 void loop() {
   short sample = analogRead(left);
+  circleBuffer[cbpos] = sample;
   
-  circleBuffer[CBLEN] = sample;
   // DSP goes here.
   if(enableFx){
-    #define time 888
-    #define wetness 0.5
-    sample = UNSHIFT(SHIFT(sample)  + wetness * SHIFT(circleBuffer[(cbpos - time)%CBLEN]));
+    #define time 20
+    #define wetness 0.2
+    sample = UNSHIFT(SHIFT(sample) *(1-wetness) + wetness * (SHIFT(circleBuffer[(cbpos - time)%CBLEN])));
+    //sample = circleBuffer[(cbpos - time)%CBLEN];
   };
   cbpos = (cbpos + 1) % CBLEN;
   
@@ -37,8 +41,7 @@ void loop() {
   output(right, sample);
 }
 void toggleButton(){
-  if(digitalRead(2) == 0)
-    enableFx =  !enableFx;
+  enableFx = !digitalRead(2);
   digitalWrite(13,enableFx);
 }
 
