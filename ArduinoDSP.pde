@@ -18,18 +18,18 @@ void setup() {
 short circleBuffer[CBLEN];
 unsigned int cbpos=0;
 
-#define SHIFT(v) (v-500)
-#define UNSHIFT(v) (v+500)
+#define SHIFT(v) ((float)(v-500.0))
+#define UNSHIFT(v) ((int)(v+500.0))
 void loop() {
   short sample = analogRead(left);
   
   circleBuffer[CBLEN] = sample;
   // DSP goes here.
-  #define time 888
-  #define wetness 0.5
-  sample = UNSHIFT(SHIFT(sample)  + wetness * SHIFT(circleBuffer[(cbpos - time)%CBLEN]));
-  
-  
+  if(enableFx){
+    #define time 888
+    #define wetness 0.5
+    sample = UNSHIFT(SHIFT(sample)  + wetness * SHIFT(circleBuffer[(cbpos - time)%CBLEN]));
+  };
   cbpos = (cbpos + 1) % CBLEN;
   
   // write out;
