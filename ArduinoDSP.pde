@@ -2,7 +2,7 @@
 #include "oscilloscope.h"
 int enableFx = 0;
 // Todo , write a way cooler circular buffer.
-#define CBLEN 768
+unsigned int CBLEN =0;
 unsigned short *circleBuffer;
 unsigned int cbpos=0;
 
@@ -10,7 +10,7 @@ unsigned int cbpos=0;
 #define UNSHIFT(v) ((int)(v+500))
 
 void setup() {
-  circleBuffer = (unsigned short*)malloc(CBLEN);
+
   pinMode(3,OUTPUT);
   pinMode(11,OUTPUT);
   pinMode(5,OUTPUT);
@@ -21,22 +21,30 @@ void setup() {
   attachInterrupt(0,toggleButton,CHANGE);
   setupIO();
   //Serial.begin(9600);
+  //useCircleBuffer(256);
 }
+#define SINEPASS(x,o,w) (0.5+sin((o)+(x)*(w))/2)
+unsigned long time = 0;
 
 void loop() {
   short sample = analogRead(left);
-  circleBuffer[cbpos] = sample;
+  {// DSP GOES HERE:
+    //updateCircleBuffer(sample);
+    
+    if(true){
+      // volume boost
+      sample= UNSHIFT(SHIFT(sample)*3);
+      
+      // Polynominal Distortion
+      float s = SHIFT(sample) / 500.f;
+      sample = UNSHIFT( (1.5f * s - 0.5f * s*s *s) * 500 );  
+    }
+    //Clamp between 0 and 1000
+    sample = min(1000,max(0,sample));
   
-  // DSP goes here.
-  if(enableFx){
-    #define time 20
-    #define wetness 0.2
-    sample = UNSHIFT(SHIFT(sample) *(1-wetness) + wetness * (SHIFT(circleBuffer[(cbpos - time)%CBLEN])));
-    //sample = circleBuffer[(cbpos - time)%CBLEN];
-  };
-  cbpos = (cbpos + 1) % CBLEN;
-  
+  }
   // write out;
+  time++;
   output(left, sample);
   output(right, sample);
 }
@@ -44,4 +52,18 @@ void toggleButton(){
   enableFx = !digitalRead(2);
   digitalWrite(13,enableFx);
 }
+/** Call during setup(). 
+ * allocates memory to the circular buffer 
+ * param samples size of buffer to allocate
+ */
+void useCircleBuffer(int samples){
+  CBLEN=samples;
+  circleBuffer = (unsigned short*)malloc(CBLEN);
+}
 
+
+/** Call during loop to save current sample into the buffer
+*/
+void updateCircleBuffer(short sample){
+  circleBuffer[time%CBLEN] = sample;
+}
