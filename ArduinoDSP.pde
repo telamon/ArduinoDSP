@@ -8,50 +8,48 @@ unsigned int cbpos=0;
 
 #define SHIFT(v) ((float)(v-500.0))
 #define UNSHIFT(v) ((int)(v+500))
-
+#define getCBSample(n) (circleBuffer[(time+(n))%CBLEN])
 void setup() {
 
-  pinMode(3,OUTPUT);
-  pinMode(11,OUTPUT);
-  pinMode(5,OUTPUT);
-  pinMode(6,OUTPUT);
-  pinMode(13,OUTPUT);
+  pinMode(3,OUTPUT); // Left LOW bits
+  pinMode(11,OUTPUT);  // Left HIGH bits
+  pinMode(5,OUTPUT); // Right LOW bits
+  pinMode(6,OUTPUT); // Right HIGH bits
+  pinMode(13,OUTPUT); // Super-fun-LED!
+  
   pinMode(2,INPUT);
   digitalWrite(2,HIGH); 
-  attachInterrupt(0,toggleButton,CHANGE);
+
   setupIO();
   //Serial.begin(9600);
-  //useCircleBuffer(256);
+  useCircleBuffer(512);
 }
 #define SINEPASS(x,o,w) (0.5+sin((o)+(x)*(w))/2)
+#define PHASEf(t) ((time % (t) ) / (t))
+#define PHASEsin(t) (0.5+sin(PHASEf(t)*2*PI)/2)
 unsigned long time = 0;
 
 void loop() {
   short sample = analogRead(left);
-  {// DSP GOES HERE:
-    //updateCircleBuffer(sample);
+  {// Sound Effects
+  
+    updateCircleBuffer(sample);
     
     if(true){
-      // volume boost
-      sample= UNSHIFT(SHIFT(sample)*3);
-      
       // Polynominal Distortion
-      float s = SHIFT(sample) / 500.f;
-      sample = UNSHIFT( (1.5f * s - 0.5f * s*s *s) * 500 );  
+      //float s = SHIFT(sample) / 500.f;
+      //sample = UNSHIFT( (1.5f * s - 0.5f * s*s *s) * 500 );  
     }
-    //Clamp between 0 and 1000
-    sample = min(1000,max(0,sample));
+    //Clamp between 0 and 1000 , No really, don't do this.. 
+    //sample = min(1000,max(0,sample));
   
   }
   // write out;
   time++;
   output(left, sample);
-  output(right, sample);
+  //output(right, sample); // Mono left only for now. 
 }
-void toggleButton(){
-  enableFx = !digitalRead(2);
-  digitalWrite(13,enableFx);
-}
+
 /** Call during setup(). 
  * allocates memory to the circular buffer 
  * param samples size of buffer to allocate
@@ -67,3 +65,5 @@ void useCircleBuffer(int samples){
 void updateCircleBuffer(short sample){
   circleBuffer[time%CBLEN] = sample;
 }
+
+
