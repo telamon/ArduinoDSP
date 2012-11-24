@@ -24,13 +24,13 @@
 #ifndef OSCILLOSCOPE_INC
 #define OSCILLOSCOPE_INC
 
-#include "WProgram.h"
+#include "Arduino.h"
 
 void writeOscilloscope(int channel, int value) {
-  Serial.print( 0xff, BYTE );                // send init byte
-  Serial.print( channel & 0xff, BYTE);       // Send channel ID;
-  Serial.print( (value >> 8) & 0xff, BYTE ); // send first part
-  Serial.print( value & 0xff, BYTE );        // send second part
+  Serial.write( 0xff );                // send init byte
+  Serial.write( channel & 0xff);       // Send channel ID;
+  Serial.write( (value >> 8) & 0xff ); // send first part
+  Serial.write( value & 0xff);        // send second part
 }
 void writeOscilloscope(int value){
   writeOscilloscope(0,value);

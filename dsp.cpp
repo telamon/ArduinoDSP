@@ -1,6 +1,6 @@
 #include "dsp.h"
 #include "timers.h"
-#include "WProgram.h"
+#include "Arduino.h"
 
 void setupIO() {
   // prepare left

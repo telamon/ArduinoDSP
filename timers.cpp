@@ -1,5 +1,5 @@
 #include "timers.h"
-#include "WConstants.h"
+#include "Arduino.h"
 
 int getTimer(int pin) {
   switch(pin) {
