@@ -1,5 +1,10 @@
 Arduino DSP
 ===========
+## Update 2016-09-11
+
+I've published the successor for this project based on the Papilio FPGA
+[Papilio-DSPWing](https://github.com/telamon/papilio-dspwing)
+
 ## Update 2015-03-21
 
     I've been receiving a couple of emails inquiring about this project the past years,
