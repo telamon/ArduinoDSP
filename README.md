@@ -10,7 +10,7 @@ I've published the successor for this project based on the Papilio FPGA
     I've been receiving a couple of emails inquiring about this project the past years,
     and I feel I should have left a few more notes in this readme.
     
-    The reason to why this project has been pretty much abondoned is because the Arduino doesn't have enough
+    The reason to why this project has been pretty much abandoned is because the Arduino doesn't have enough
     processing-power to accomplish any realtime signal processing. 
     So after finally managing to get this project to just do a plain Audio-passthrough and realize
     the extremely bad quality and chunkyness of the sound I started looking for alternatives.
